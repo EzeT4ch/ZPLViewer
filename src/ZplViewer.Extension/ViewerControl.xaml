@@ -1,0 +1,64 @@
+<DataTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:vs="http://schemas.microsoft.com/visualstudio/extensibility/2022/xaml"
+              xmlns:colors="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0">
+  <Grid Margin="12"
+        Background="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
+        TextElement.Foreground="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <WrapPanel Margin="0,0,0,8">
+      <Button Content="4 × 8 pulgadas" Command="{Binding ShippingPreset}" Padding="6,4" Margin="0,0,10,0" ToolTip="101,6 × 203,2 mm; 8 puntos/mm. Luego pulsá Actualizar vista previa."/>
+      <TextBlock Text="Ancho (mm)" VerticalAlignment="Center"/>
+      <TextBox Text="{Binding WidthMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="55" Margin="6,0,12,0" AutomationProperties.Name="Ancho en milímetros"/>
+      <TextBlock Text="Alto (mm)" VerticalAlignment="Center"/>
+      <TextBox Text="{Binding HeightMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="55" Margin="6,0,12,0" AutomationProperties.Name="Alto en milímetros"/>
+      <TextBlock Text="Puntos/mm" VerticalAlignment="Center"/>
+      <TextBox Text="{Binding DotsPerMm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="6,0,12,0" AutomationProperties.Name="Puntos por milímetro"/>
+      <Button Content="Actualizar vista previa" Command="{Binding Render}" CommandParameter="{Binding Text, ElementName=Editor}" IsEnabled="{Binding CanRender}" Padding="8,4"/>
+    </WrapPanel>
+    <StackPanel Grid.Row="1" Margin="0,0,0,8">
+      <TextBlock Text="{Binding DebugStatus}" TextWrapping="Wrap"/>
+      <TextBlock Text="{Binding PreviewStatus}" TextWrapping="Wrap"/>
+    </StackPanel>
+    <Grid Grid.Row="2">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+      <TabControl>
+        <TabItem Header="ZPL editable">
+          <TextBox x:Name="Editor" Text="{Binding Draft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   AcceptsReturn="True" AcceptsTab="True" FontFamily="Consolas" FontSize="13"
+                   VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                   AutomationProperties.Name="ZPL exacto editable"/>
+        </TabItem>
+        <TabItem Header="Formato (solo lectura)">
+          <TextBox Text="{Binding Formatted, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas" FontSize="13"
+                   VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                   AutomationProperties.Name="ZPL formateado para lectura"/>
+        </TabItem>
+      </TabControl>
+      <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Stretch"/>
+      <DockPanel Grid.Column="2">
+        <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+          <Button Content="Anterior" Command="{Binding Previous}" Padding="5"/>
+          <TextBlock Text="{Binding Page}" Margin="8,0" VerticalAlignment="Center"/>
+          <Button Content="Siguiente" Command="{Binding Next}" Padding="5"/>
+          <TextBlock Text="Zoom" Margin="10,0,4,0" VerticalAlignment="Center"/>
+          <Slider Value="{Binding Zoom, Mode=TwoWay}" Minimum="10" Maximum="400" Width="90" AutomationProperties.Name="Zoom"/>
+        </WrapPanel>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+          <Border Background="White" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image Source="{Binding ImageUri}" Stretch="Fill" AutomationProperties.Name="Vista previa de etiqueta"/>
+          </Border>
+        </ScrollViewer>
+      </DockPanel>
+    </Grid>
+    <StackPanel Grid.Row="3" Margin="0,10,0,0">
+      <TextBlock Text="{Binding Status}" TextWrapping="Wrap" MaxHeight="70"/>
+      <WrapPanel Margin="0,8,0,0">
+        <Button Content="Aplicar a variable" Command="{Binding Apply}" CommandParameter="{Binding Text, ElementName=Editor}" IsEnabled="{Binding CanApply}" Padding="10,5"/>
+        <Button Content="Recargar variable (descartar borrador)" Command="{Binding Reload}" IsEnabled="{Binding CanReload}" Padding="10,5" Margin="8,0,0,0"/>
+      </WrapPanel>
+    </StackPanel>
+  </Grid>
+</DataTemplate>

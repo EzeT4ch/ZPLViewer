@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <VisualStudioRoot Condition="'$(VisualStudioRoot)' == '' and '$(VSINSTALLDIR)' != ''">$(VSINSTALLDIR)</VisualStudioRoot>
+    <VisualStudioRoot Condition="'$(VisualStudioRoot)' == ''">$(ProgramW6432)\Microsoft Visual Studio\18\Community</VisualStudioRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../samples/Labels/*.zpl" Link="Labels/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <ProjectReference Include="../../src/ZplViewer.Core/ZplViewer.Core.csproj" />
+    <ProjectReference Include="../../src/ZplViewer.ObjectSource/ZplViewer.ObjectSource.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The NuGet package contains reference assemblies only. Tests need the actual VS runtime. -->
+    <AssemblyMetadata Include="VisualizerRuntimePath" Value="$(VisualStudioRoot)/Common7/Packages/Debugger/Visualizers/netstandard2.0/Microsoft.VisualStudio.DebuggerVisualizers.dll" />
+  </ItemGroup>
+  <Target Name="CheckVisualizerRuntime" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(VisualStudioRoot)/Common7/Packages/Debugger/Visualizers/netstandard2.0/Microsoft.VisualStudio.DebuggerVisualizers.dll')"
+           Text="Set VisualStudioRoot to the Visual Studio installation directory to run object-source tests." />
+  </Target>
+</Project>

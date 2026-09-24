@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "ZplViewer.sln",
+    "projects": [
+      "src\\ZplViewer.Extension\\ZplViewer.Extension.csproj",
+      "src\\ZplViewer.Core\\ZplViewer.Core.csproj",
+      "src\\ZplViewer.ObjectSource\\ZplViewer.ObjectSource.csproj"
+    ]
+  }
+}

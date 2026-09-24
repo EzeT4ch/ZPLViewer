@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
+    <NeutralLanguage>es</NeutralLanguage>
+    <Version>0.1.1</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Extensibility.Sdk" Version="17.14.40608" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Extensibility.Build" Version="17.14.40608" PrivateAssets="all" />
+    <ProjectReference Include="../ZplViewer.Core/ZplViewer.Core.csproj" />
+    <ProjectReference Include="../ZplViewer.ObjectSource/ZplViewer.ObjectSource.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="ViewerControl.xaml" />
+    <EmbeddedResource Include="ViewerControl.xaml" />
+    <Content Include="../ZplViewer.ObjectSource/bin/$(Configuration)/netstandard2.0/ZplViewer.ObjectSource.dll" Link="netstandard2.0/ZplViewer.ObjectSource.dll" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="RemoveNonWindowsNativeAssets" AfterTargets="GetVsixSourceItems">
+    <!-- Visual Studio is a 64-bit Windows host; retain x64 and arm64 native renderers. -->
+    <ItemGroup>
+      <VSIXSourceItem Remove="@(VSIXSourceItem)"
+        Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(VSIXSourceItem.Identity)', '(?i)[/\\]runtimes[/\\](linux[^/\\]*|osx|win-x86)[/\\]'))" />
+    </ItemGroup>
+  </Target>
+</Project>
