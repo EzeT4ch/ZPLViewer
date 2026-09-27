@@ -51,4 +51,14 @@ public sealed class RendererTests
     [Fact]
     public void HonorsCancellationBeforeRendering()
         => Assert.Throws<OperationCanceledException>(() => new ZplRenderer().Render("^XA^XZ", new(), new CancellationToken(true)));
+
+    [Fact]
+    public void PassingPrecomputedSegmentsProducesTheSameResultAsComputingThemInternally()
+    {
+        const string source = "^XA^FO20,20^A0N,30,30^FDHello^FS^XZ";
+        var segments = ZplFormatter.GetSegments(source);
+        var withSegments = new ZplRenderer().Render(source, new(100, 150, 8), segments: segments);
+        var withoutSegments = new ZplRenderer().Render(source, new(100, 150, 8));
+        Assert.True(Assert.Single(withSegments.Pages).SequenceEqual(Assert.Single(withoutSegments.Pages)));
+    }
 }

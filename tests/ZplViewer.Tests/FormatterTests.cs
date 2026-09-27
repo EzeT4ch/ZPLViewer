@@ -42,4 +42,12 @@ public sealed class FormatterTests
         const string source = "^XA^GFB,4,4,1,^FO~^FS^XZ";
         Assert.Equal(source, ZplFormatter.Format(source));
     }
+
+    [Fact]
+    public void FormattingPrecomputedSegmentsMatchesFormattingTheSourceDirectly()
+    {
+        const string source = "^XA^FO10,10^FD  Café _5E ~texto\r\nsegunda línea  ^FS^XZ";
+        var segments = ZplFormatter.GetSegments(source);
+        Assert.Equal(ZplFormatter.Format(source), ZplFormatter.Format(segments));
+    }
 }
