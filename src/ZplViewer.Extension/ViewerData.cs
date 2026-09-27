@@ -172,9 +172,27 @@ internal sealed class ViewerData : NotifyPropertyChangedObject, IDisposable
     {
         session.Edit(draft);
         if (!TrySettings(out var settings)) throw new ArgumentException("Ingresá dimensiones numéricas y una densidad válida.");
-        Formatted = draft.Length <= ZplRenderer.MaximumSourceLength ? ZplFormatter.Format(draft) : "Texto demasiado grande para formatear.";
+        if (rendered && draft == renderedDraft && settings == renderedSettings)
+        {
+            Status = "Vista previa ya actualizada.";
+            return;
+        }
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token);
-        var result = await Task.Run(() => renderer.Render(draft, settings, linked.Token), linked.Token);
+        var result = await Task.Run(() =>
+        {
+            IReadOnlyList<string>? segments = null;
+            if (draft.Length <= ZplRenderer.MaximumSourceLength)
+            {
+                segments = ZplFormatter.GetSegments(draft);
+                Formatted = ZplFormatter.Format(segments);
+            }
+            else
+            {
+                Formatted = "Texto demasiado grande para formatear.";
+            }
+            // Formatting runs even if rendering below fails validation, matching prior behavior.
+            return renderer.Render(draft, settings, linked.Token, segments);
+        }, linked.Token);
         linked.Token.ThrowIfCancellationRequested();
         Directory.CreateDirectory(imageDirectory);
         var nextImages = new List<string>();

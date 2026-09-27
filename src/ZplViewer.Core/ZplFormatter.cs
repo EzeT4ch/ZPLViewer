@@ -58,10 +58,12 @@ public static class ZplFormatter
         return segments;
     }
 
-    public static string Format(string source)
+    public static string Format(string source) => Format(GetSegments(source));
+
+    public static string Format(IReadOnlyList<string> segments)
     {
         var output = new StringBuilder();
-        foreach (var segment in GetSegments(source))
+        foreach (var segment in segments)
         {
             if (output.Length > 0 && output[^1] is not '\r' and not '\n')
                 output.AppendLine();

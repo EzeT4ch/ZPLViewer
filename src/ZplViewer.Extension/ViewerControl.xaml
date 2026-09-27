@@ -5,6 +5,39 @@
   <Grid Margin="12"
         Background="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
         TextElement.Foreground="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}">
+    <Grid.Resources>
+      <!-- Unstyled WPF controls default to fixed light chrome that does not follow the VS
+           theme. Rebind them to the same tool-window keys as the root Grid so the whole
+           surface stays coherent in both Light and Dark themes instead of only the Grid
+           background/text reacting to a theme switch. -->
+      <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+      </Style>
+      <Style TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+      </Style>
+      <Style TargetType="TabControl">
+        <Setter Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
+      </Style>
+      <Style TargetType="TabItem">
+        <Setter Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+      </Style>
+      <Style TargetType="GridSplitter">
+        <Setter Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
+      </Style>
+      <Style TargetType="Slider">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+      </Style>
+    </Grid.Resources>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
@@ -47,7 +80,13 @@
           <Slider Value="{Binding Zoom, Mode=TwoWay}" Minimum="10" Maximum="400" Width="90" AutomationProperties.Name="Zoom"/>
         </WrapPanel>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-          <Border Background="White" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" HorizontalAlignment="Left" VerticalAlignment="Top">
+          <!-- The label itself stays white: it represents paper stock, not app chrome, so it
+               must not be recolored per theme. A themed frame keeps it from looking like a
+               raw white block floating over a dark background. -->
+          <Border Background="White"
+                  BorderBrush="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBorderBrushKey}}"
+                  BorderThickness="1"
+                  Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image Source="{Binding ImageUri}" Stretch="Fill" AutomationProperties.Name="Vista previa de etiqueta"/>
           </Border>
         </ScrollViewer>

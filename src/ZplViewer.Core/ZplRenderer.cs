@@ -23,14 +23,24 @@ public sealed class ZplRenderer
     public const int MaximumSourceLength = 2_000_000;
     public const int MaximumPages = 50;
 
-    public RenderResult Render(string source, RenderSettings settings, CancellationToken cancellationToken = default)
+    // The embedded font is immutable and identical for every render; parsing it from the
+    // resource stream on every call was pure overhead.
+    private static readonly Lazy<SKTypeface> EmbeddedTypeface = new(() =>
+    {
+        using var fontStream = typeof(ZplRenderer).Assembly.GetManifestResourceStream("ZplViewer.Core.Fonts.RobotoCondensed-Bold.ttf")
+            ?? throw new InvalidOperationException("No se encontró la fuente incluida en el visor.");
+        return SKTypeface.FromStream(fontStream)
+            ?? throw new InvalidOperationException("No se pudo cargar Roboto Condensed Bold.");
+    }, LazyThreadSafetyMode.ExecutionAndPublication);
+
+    public RenderResult Render(string source, RenderSettings settings, CancellationToken cancellationToken = default, IReadOnlyList<string>? segments = null)
     {
         settings.Validate();
         if (string.IsNullOrWhiteSpace(source))
             throw new ArgumentException("La cadena está vacía.");
         if (source.Length > MaximumSourceLength)
             throw new ArgumentException("La vista previa admite hasta 2 millones de caracteres.");
-        var segments = ZplFormatter.GetSegments(source);
+        segments ??= ZplFormatter.GetSegments(source);
         var starts = segments.Count(s => s.StartsWith("^XA", StringComparison.Ordinal));
         var ends = segments.Count(s => s.StartsWith("^XZ", StringComparison.Ordinal));
         if (starts == 0 || starts != ends)
@@ -58,10 +68,7 @@ public sealed class ZplRenderer
         // Storage belongs to this document: downloads never leak between debugged variables.
         var storage = new PrinterStorage();
         var analysis = new ZplAnalyzer(storage).Analyze(source);
-        using var fontStream = typeof(ZplRenderer).Assembly.GetManifestResourceStream("ZplViewer.Core.Fonts.RobotoCondensed-Bold.ttf")
-            ?? throw new InvalidOperationException("No se encontró la fuente incluida en el visor.");
-        using var typeface = SKTypeface.FromStream(fontStream)
-            ?? throw new InvalidOperationException("No se pudo cargar Roboto Condensed Bold.");
+        var typeface = EmbeddedTypeface.Value;
         var options = new DrawerOptions { ReplaceDashWithEnDash = false, ReplaceUnderscoreWithEnSpace = false };
         var fallback = options.FontManager.FontLoader;
         var substitutedQ = false;
